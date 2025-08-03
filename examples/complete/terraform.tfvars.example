@@ -1,0 +1,79 @@
+################################################################################
+# Example terraform.tfvars file
+# Copy this file to terraform.tfvars and customize the values
+################################################################################
+
+# General Configuration
+aws_region   = "us-west-2"
+environment  = "dev"
+project_name = "my-gitops-project"
+
+# EKS Cluster Configuration (REQUIRED)
+cluster_name = "my-eks-cluster"
+vpc_id       = "vpc-0123456789abcdef0"
+
+# GitOps Repository Configuration
+gitops_addons_org      = "git@github.com:my-org"
+gitops_addons_repo     = "gitops-addons"
+gitops_addons_revision = "main"
+
+gitops_platform_org      = "git@github.com:my-org"
+gitops_platform_repo     = "gitops-platform"
+gitops_platform_revision = "main"
+
+gitops_workloads_org      = "git@github.com:my-org"
+gitops_workloads_repo     = "gitops-workloads"
+gitops_workloads_revision = "main"
+
+# GitOps Authentication
+gitops_user     = "gitops"
+gitops_password = "your-secure-token-here"
+
+# Kubernetes Addons
+enable_karpenter                     = true
+enable_cluster_autoscaler            = false
+enable_aws_node_termination_handler  = true
+enable_istio                         = false
+enable_custom_certificates           = false
+
+# DNS Configuration
+external_dns_domain_filters = ["example.com", "internal.example.com"]
+private_route53_zone_arn    = ["arn:aws:route53:::hostedzone/Z1234567890ABC"]
+public_route53_zone_arn     = ["arn:aws:route53:::hostedzone/Z0987654321XYZ"]
+
+# VPC CNI Configuration
+vpc_cni_conf_mode = "default_cfg"  # or "custom_cfg"
+
+# Karpenter Configuration
+karpenter_discovery_tag = "project"
+
+# ArgoCD Configuration
+default_argoproj_name = "my-project"
+
+# ArgoCD Ingress (Optional)
+enable_argo_ingress        = false
+argo_domain_name          = "argocd.example.com"
+argo_zone_id              = "Z1234567890ABC"
+argo_load_balancer_type   = "internal"
+argo_validation_type      = "private"
+
+# SSO Configuration (Optional)
+enable_sso    = false
+tenant_id     = "your-tenant-id"
+client_id     = "your-client-id"
+client_secret = "your-client-secret"
+
+# User Management
+enable_user_management = false
+
+# Security Configuration
+internal_apps_domain_names     = ["internal.example.com"]
+core_cluster_apps_ingress_cidr = ["10.0.0.0/8", "172.16.0.0/12"]
+
+# Tags
+tags = {
+  Environment = "dev"
+  Project     = "my-gitops-project"
+  Owner       = "platform-team"
+  CostCenter  = "engineering"
+}

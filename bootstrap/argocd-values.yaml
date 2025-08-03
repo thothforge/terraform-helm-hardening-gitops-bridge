@@ -1,0 +1,196 @@
+# bootstrap/argocd-values.yaml
+global:
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: "topology.kubernetes.io/hostname"
+      whenUnsatisfiable: "ScheduleAnyway"
+    # Default logging options used by all components
+  logging:
+    # -- Set the global logging format. Either: `text` or `json`
+    format: text
+    # -- Set the global logging level. One of: `debug`, `info`, `warn` or `error`
+    level: debug
+
+
+
+configs:
+  params:
+    server.insecure: true
+  # SSO configuration with Entra ID
+  cm:
+
+    url: https://${argo_host}
+    dex.config: |
+      logger:
+        level: debug
+        format: json
+      connectors:
+      - type: saml
+        id: aws
+        name: "AWS IAM Identity Center"
+        config:
+          # You need value of Identity Center APP SAML (IAM Identity Center sign-in URL)
+          ssoURL: ${sso_assertion_url} #https://portal.sso.yourregion.amazonaws.com/saml/assertion/id
+          # You need `caData` _OR_ `ca`, but not both.
+          #<CA cert (IAM Identity Center Certificate of Identity Center APP SAML) passed through base64 encoding>
+          caData: ${ca_data_iam_app} 
+          # Path to mount the secret to the dex container
+          entityIssuer: https://${argo_host}/api/dex/callback
+          redirectURI: https://${argo_host}/api/dex/callback
+          usernameAttr: email
+          emailAttr: email
+          groupsAttr: groups
+
+  rbac:
+    policy.csv: |
+      p, role:platform-team, applications, *, */*, allow
+      p, role:platform-team, projects, *, */*, allow
+      p, role:platform-team, clusters, *, *, allow
+      p, role:platform-team, repositories, *, *, allow
+      p, role:platform-team, certificates, *, *, allow
+      
+      p, role:platform-team, logs, get, */*, allow
+      p, role:platform-team, exec, create, */*, allow
+      p, role:platform-team, applicationsets, *, */*, allow
+      p, role:platform-team, accounts, get, */*, allow
+      p, role:platform-team, sessions, create, */*, allow
+      p, role:platform-team, sessions, delete, */*, allow
+      p, role:platform-team, projects, get, *, allow
+      p, role:platform-team, projects, list, *, allow
+      p, role:platform-team, projects, update, *, allow
+      p, role:platform-team, projects, create, *, allow
+      
+      p, role:platform-team, actions, *, */*, allow
+      g, ${admin_idp_group_id}, role:platform-team
+
+    policy.default: role:deny
+    policy.matchMode: glob
+    scopes: '[groups, email]'
+server:
+  autoscaling:
+    minReplicas: 2
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: "${argocd_irsa_role_arn}"
+  service:
+    type:  "NodePort"
+  ingress:
+    enabled: "${enable_argo_ingress}"
+    hostname: "${argo_host}"
+    controller: "aws"
+    ingressClassName: "alb"
+    tls: true
+    aws:
+      backendProtocolVersion: GRPC
+      serviceType: "NodePort" #"ClusterIP"
+    annotations:
+      alb.ingress.kubernetes.io/group.name: argocd
+      alb.ingress.kubernetes.io/backend-protocol: HTTP
+      alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/scheme: "${aws_load_balancer_type}"
+      alb.ingress.kubernetes.io/security-groups: "${argo_ingress_sg}"
+      alb.ingress.kubernetes.io/certificate-arn: "${acm_certificate_arn}"
+      alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS-1-2-2017-01
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
+      alb.ingress.kubernetes.io/healthcheck-path: /healthz
+      alb.ingress.kubernetes.io/subnets: "${ingress_subnets}"
+      alb.ingress.kubernetes.io/tags: "${required_tags}"
+    path: /
+
+    # -- Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific`
+    pathType: Prefix
+    #extraRules:
+    #- http:
+    #    paths:
+    #    - path: /argocd
+    #      pathType: Prefix
+    #      backend:
+    #        service:
+    #          name: 'argo-cd-argocd-server-grpc'
+    #          port:
+    #            name: 'https'
+  ingressGrpc:
+    # -- Enable an ingress resource for the Argo CD server for dedicated [gRPC-ingress]
+    enabled: false #"${enable_argo_ingress}"
+    hostname: "${argo_host}"
+    ingressClassName: "alb"
+    annotations:
+      alb.ingress.kubernetes.io/group.name: argocd
+      alb.ingress.kubernetes.io/backend-protocol: HTTPS
+      alb.ingress.kubernetes.io/backend-protocol-version: GRPC
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+      alb.ingress.kubernetes.io/target-type: "ip"
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
+      alb.ingress.kubernetes.io/healthcheck-path: /healthz
+      alb.ingress.kubernetes.io/success-codes: "0-99"
+      alb.ingress.kubernetes.io/security-groups: "${argo_ingress_sg}"
+      alb.ingress.kubernetes.io/certificate-arn: "${acm_certificate_arn}"
+      alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS-1-2-2017-01
+      alb.ingress.kubernetes.io/subnets: "${ingress_subnets}"
+      alb.ingress.kubernetes.io/tags: "${required_tags}"
+controller:
+  replicas: 3
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: "${argocd_irsa_role_arn}"
+  metrics:
+    enable: true
+  priorityClassName: "system-node-critical"
+  podAnnotations:
+    prometheus.io/scrape: true
+    prometheus.io/port: 8082
+    prometheus.io/path: "/metrics"
+  service:
+    annotations:
+      prometheus.io/scrape: true
+      prometheus.io/port: 8082
+      prometheus.io/path: "/metrics"
+
+
+repoServer:
+  replicas: 2
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: "${argocd_irsa_role_arn}"
+    metrics:
+      enable: true
+    priorityClassName: "system-node-critical"
+    podAnnotations:
+      prometheus.io/scrape: true
+      prometheus.io/port: 8084
+      prometheus.io/path: "/metrics"
+    service:
+      annotations:
+        prometheus.io/scrape: true
+        prometheus.io/port: 8084
+        prometheus.io/path: "/metrics"
+
+
+notificationsController:
+  enable: true
+
+redis-ha:
+  enabled: true
+  waitForVotes: false
+  quorum: 2
+
+applicationSet:
+  metrics:
+    enable: true
+  replicas: 2
+  podAnnotations:
+    prometheus.io/scrape: true
+    prometheus.io/port: 8085
+    prometheus.io/path: "/metrics"
+  service:
+    annotations:
+      prometheus.io/scrape: true
+      prometheus.io/port: 8085
+      prometheus.io/path: "/metrics"
+
+

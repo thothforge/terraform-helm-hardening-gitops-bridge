@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ${default_argoproj_name}
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/instance: argoprojects-platform-team
+spec:
+  description: Team for TI to manage Argo projects and applications
+  sourceRepos: ${jsonencode(repositories)}
+  destinations:
+    - namespace: '*'
+      server: '*'
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
