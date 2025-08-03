@@ -7,12 +7,6 @@
 [![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
 [![ArgoCD](https://img.shields.io/badge/argo-EF7B4D?style=for-the-badge&logo=argo&logoColor=white)](https://argoproj.github.io/cd/)
 
-# Terraform Hardening GitOps Bridge Module
-
-[![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)](https://www.terraform.io/)
-[![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
-[![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
-[![ArgoCD](https://img.shields.io/badge/argo-EF7B4D?style=for-the-badge&logo=argo&logoColor=white)](https://argoproj.github.io/cd/)
 
 A comprehensive Terraform module that provides a hardened GitOps bridge for Amazon EKS clusters, implementing security best practices and enterprise-grade configurations for GitOps workflows using ArgoCD.
 
@@ -563,31 +557,7 @@ aws route53 list-resource-record-sets --hosted-zone-id <zone-id>
 kubectl run -it --rm debug --image=busybox --restart=Never -- nslookup argocd.example.com
 ```
 
-## 📋 FAQ
 
-### Q: Can I use this module with existing EKS clusters?
-A: Yes, this module is designed to work with existing EKS clusters. You just need to provide the cluster details.
-
-### Q: How do I enable SSO with Microsoft Entra ID?
-A: Set `enable_sso = true` and provide your `tenant_id`, `client_id`, and `client_secret`.
-
-### Q: Can I customize the ArgoCD configuration?
-A: Yes, you can customize ArgoCD through the module's configuration options and Helm values.
-
-### Q: How do I add custom addons?
-A: You can extend the addons configuration or add custom applications through your GitOps repositories.
-
-### Q: Is this module production-ready?
-A: Yes, this module implements enterprise-grade security and best practices suitable for production environments.
-
-### Q: How do I backup ArgoCD configurations?
-A: ArgoCD configurations are stored in your Git repositories, providing built-in backup and version control.
-
-### Q: Can I use this with multiple AWS accounts?
-A: Yes, you can deploy this module across multiple AWS accounts with proper cross-account IAM roles.
-
-### Q: How do I monitor the GitOps pipeline?
-A: Use ArgoCD's built-in UI and integrate with your monitoring stack using the provided observability addons.
 
 ## 🔄 Migration Guide
 
@@ -1346,3 +1316,29 @@ No requirements.
 | <a name="output_addons"></a> [addons](#output\_addons) | EKS Addons |
 
 <!-- END_TF_DOCS -->
+
+## 📋 FAQ
+
+### Q: Can I use this module with existing EKS clusters?
+A: Yes, this module is designed to work with existing EKS clusters. You just need to provide the cluster details.
+
+### Q: How do I enable SSO with Microsoft Entra ID?
+A: Set `enable_sso = true` and provide your `tenant_id`, `client_id`, and `client_secret`.
+
+### Q: Can I customize the ArgoCD configuration?
+A: Yes, you can customize ArgoCD through the module's configuration options and Helm values.
+
+### Q: How do I add custom addons?
+A: You can extend the addons configuration or add custom applications through your GitOps repositories.
+
+### Q: Is this module production-ready?
+A: Yes, this module implements enterprise-grade security and best practices suitable for production environments.
+
+### Q: How do I backup ArgoCD configurations?
+A: ArgoCD configurations are stored in your Git repositories, providing built-in backup and version control.
+
+### Q: Can I use this with multiple AWS accounts?
+A: Yes, you can deploy this module across multiple AWS accounts with proper cross-account IAM roles.
+
+### Q: How do I monitor the GitOps pipeline?
+A: Use ArgoCD's built-in UI and integrate with your monitoring stack using the provided observability addons.
