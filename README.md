@@ -19,7 +19,6 @@ A comprehensive Terraform module that provides a hardened GitOps bridge for Amaz
 - [Examples](#-examples)
 - [Configuration Options](#-configuration-options)
 - [Security Best Practices](#-security-best-practices)
-- [Troubleshooting](#-troubleshooting)
 - [Deployment Patterns](#️-deployment-patterns)
 - [Monitoring and Observability](#-monitoring-and-observability)
 - [Performance Optimization](#-performance-optimization)
@@ -27,15 +26,11 @@ A comprehensive Terraform module that provides a hardened GitOps bridge for Amaz
 - [DNS and Ingress Configuration](#-dns-and-ingress-configuration)
 - [Customization Options](#-customization-options)
 - [Cost Optimization](#-cost-optimization)
-- [Testing and Validation](#-testing-and-validation)
-- [Debugging and Diagnostics](#-debugging-and-diagnostics)
-- [FAQ](#-faq)
-- [Migration Guide](#-migration-guide)
 - [Best Practices](#-best-practices)
 - [Operational Procedures](#-operational-procedures)
-- [Advanced Troubleshooting](#-advanced-troubleshooting)
+- [FAQ](#-faq)
 - [Additional Resources](#-additional-resources)
-- [Versioning and Changelog](#️-versioning-and-changelog)
+
 - [Contributing](#-contributing)
 - [License](#-license)
 - [Support](#-support)
@@ -233,51 +228,7 @@ This module implements several security best practices:
 4. **Certificate Management**: Automated SSL/TLS certificate provisioning
 5. **Audit Logging**: Comprehensive logging and monitoring
 
-## 🚨 Troubleshooting
 
-### Common Issues
-
-#### ArgoCD Not Starting
-```bash
-# Check ArgoCD pods
-kubectl get pods -n argocd
-
-# Check ArgoCD logs
-kubectl logs -n argocd deployment/argocd-server
-```
-
-#### DNS Resolution Issues
-```bash
-# Check External DNS logs
-kubectl logs -n kube-system deployment/external-dns
-
-# Verify Route53 permissions
-aws route53 list-hosted-zones
-```
-
-#### Load Balancer Issues
-```bash
-# Check AWS Load Balancer Controller
-kubectl logs -n kube-system deployment/aws-load-balancer-controller
-
-# Verify security group rules
-aws ec2 describe-security-groups --group-ids sg-xxxxxxxxx
-```
-
-## 🔄 Upgrade Guide
-
-### Version Compatibility
-
-| Module Version | Terraform | AWS Provider | Kubernetes |
-|----------------|-----------|--------------|------------|
-| 1.x.x          | >= 1.0    | >= 5.0       | >= 1.28    |
-
-### Upgrade Steps
-
-1. **Backup Configuration**: Always backup your current state
-2. **Review Changes**: Check the changelog for breaking changes
-3. **Plan Changes**: Run `terraform plan` to review changes
-4. **Apply Gradually**: Apply changes in stages for critical environments
 
 ## 🏛️ Deployment Patterns
 
@@ -482,156 +433,13 @@ tags = {
 3. **Monitor resource utilization** with metrics server
 4. **Implement resource quotas** per namespace
 
-## 🧪 Testing and Validation
-
-### Pre-deployment Validation
-```bash
-# Validate Terraform configuration
-terraform validate
-
-# Plan deployment
-terraform plan
-
-# Check cluster connectivity
-kubectl cluster-info
-
-# Verify OIDC provider
-aws iam list-open-id-connect-providers
-```
-
-### Post-deployment Testing
-```bash
-# Check ArgoCD installation
-kubectl get pods -n argocd
-
-# Verify addons deployment
-kubectl get applications -n argocd
-
-# Test DNS resolution
-nslookup argocd.example.com
-
-# Check load balancer status
-kubectl get svc -n argocd
-```
-
-## 🔍 Debugging and Diagnostics
-
-### Common Debugging Commands
-
-#### ArgoCD Issues
-```bash
-# Check ArgoCD server status
-kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server
-
-# View ArgoCD server logs
-kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server -f
-
-# Check ArgoCD applications
-kubectl get applications -n argocd
-
-# Describe specific application
-kubectl describe application <app-name> -n argocd
-```
-
-#### Networking Issues
-```bash
-# Check security groups
-aws ec2 describe-security-groups --filters "Name=group-name,Values=*${cluster_name}*"
-
-# Verify load balancer controller
-kubectl logs -n kube-system deployment/aws-load-balancer-controller
-
-# Check ingress resources
-kubectl get ingress --all-namespaces
-```
-
-#### DNS Issues
-```bash
-# Check external-dns logs
-kubectl logs -n kube-system deployment/external-dns
-
-# Verify Route53 records
-aws route53 list-resource-record-sets --hosted-zone-id <zone-id>
-
-# Test DNS resolution from pod
-kubectl run -it --rm debug --image=busybox --restart=Never -- nslookup argocd.example.com
-```
 
 
 
-## 🔄 Migration Guide
 
-### From Legacy GitOps Solutions
 
-#### Pre-migration Checklist
-- [ ] Backup existing configurations
-- [ ] Document current GitOps workflows
-- [ ] Identify custom applications and configurations
-- [ ] Plan downtime windows
-- [ ] Prepare rollback procedures
 
-#### Migration Steps
 
-1. **Prepare New Repository Structure**
-```bash
-# Create new GitOps repository structure
-mkdir -p gitops-repo/{addons,platform,workloads}
-```
-
-2. **Migrate Existing Applications**
-```bash
-# Export existing ArgoCD applications
-kubectl get applications -n argocd -o yaml > existing-apps.yaml
-
-# Convert to new structure
-# (Manual process based on your current setup)
-```
-
-3. **Deploy GitOps Bridge**
-```hcl
-module "gitops_bridge" {
-  source = "path/to/terraform-hardening-gitops-bridge"
-  
-  # Migration-specific configuration
-  gitops_deployment_type = "single"
-  
-  # Preserve existing settings
-  cluster_name = var.existing_cluster_name
-  # ... other configurations
-}
-```
-
-4. **Validate Migration**
-```bash
-# Check all applications are synced
-kubectl get applications -n argocd
-
-# Verify addon functionality
-kubectl get pods --all-namespaces
-```
-
-### From Manual Kubernetes Management
-
-#### Assessment Phase
-1. **Inventory Current Resources**
-```bash
-# List all namespaces
-kubectl get namespaces
-
-# Export current configurations
-kubectl get all --all-namespaces -o yaml > current-state.yaml
-```
-
-2. **Identify GitOps Candidates**
-- Applications suitable for GitOps management
-- Static configurations vs. dynamic workloads
-- Security and compliance requirements
-
-#### Implementation Phase
-1. **Start with Non-Critical Workloads**
-2. **Gradually Migrate Core Services**
-3. **Implement Monitoring and Alerting**
-4. **Train Team on GitOps Workflows**
 
 ## 🎯 Best Practices
 
@@ -823,86 +631,17 @@ resources:
     memory: 2Gi
 ```
 
-## 🔍 Advanced Troubleshooting
 
-### Performance Issues
-
-#### ArgoCD Performance Tuning
-```yaml
-# Increase ArgoCD server resources
-server:
-  resources:
-    limits:
-      cpu: 2
-      memory: 4Gi
-    requests:
-      cpu: 1
-      memory: 2Gi
-
-# Optimize repository polling
-configs:
-  cm:
-    timeout.reconciliation: 180s
-    timeout.hard.reconciliation: 0s
-```
-
-#### Network Performance
-```bash
-# Check network latency
-kubectl run -it --rm debug --image=busybox --restart=Never -- ping google.com
-
-# Test DNS resolution
-kubectl run -it --rm debug --image=busybox --restart=Never -- nslookup kubernetes.default
-```
-
-### Security Incidents
-
-#### Incident Response Checklist
-1. **Immediate Actions**
-   - Isolate affected components
-   - Preserve evidence
-   - Notify security team
-
-2. **Investigation**
-```bash
-# Check audit logs
-kubectl logs -n kube-system kube-apiserver-*
-
-# Review ArgoCD access logs
-kubectl logs -n argocd deployment/argocd-server
-```
-
-3. **Recovery**
-   - Apply security patches
-   - Rotate compromised credentials
-   - Update security policies
-
-### Compliance and Auditing
-
-#### Audit Trail
-```bash
-# Enable audit logging
-kubectl get events --all-namespaces --sort-by='.lastTimestamp'
-
-# Review ArgoCD application changes
-kubectl get applications -n argocd -o yaml
-```
-
-#### Compliance Checks
-```bash
-# Check pod security policies
-kubectl get psp
-
-# Verify network policies
-kubectl get networkpolicies --all-namespaces
-
-# Review RBAC configurations
-kubectl get clusterroles,clusterrolebindings
-```
 
 ## 📚 Additional Resources
 
-### Documentation Links
+### Module Documentation
+- [Troubleshooting Guide](./TROUBLESHOOTING.md) - Comprehensive troubleshooting and debugging guide
+- [Migration Guide](./MIGRATION.md) - Step-by-step migration from other GitOps solutions
+- [Upgrade Guide](./UPGRADE.md) - Version upgrade instructions and compatibility matrix
+- [Examples](./examples/) - Working configuration examples
+
+### External Documentation
 - [ArgoCD Official Documentation](https://argo-cd.readthedocs.io/)
 - [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/aws-load-balancer-controller/)
 - [External DNS Documentation](https://github.com/kubernetes-sigs/external-dns)
@@ -912,50 +651,6 @@ kubectl get clusterroles,clusterrolebindings
 - [GitOps Working Group](https://github.com/gitops-working-group)
 - [CNCF ArgoCD Project](https://www.cncf.io/projects/argo/)
 - [AWS EKS Best Practices](https://aws.github.io/aws-eks-best-practices/)
-
-### Training and Certification
-- [Certified Kubernetes Administrator (CKA)](https://www.cncf.io/certification/cka/)
-- [AWS Certified Solutions Architect](https://aws.amazon.com/certification/certified-solutions-architect-associate/)
-- [GitOps Fundamentals](https://www.cncf.io/certification/kcna/)
-
-## 🏷️ Versioning and Changelog
-
-### Semantic Versioning
-This module follows [Semantic Versioning](https://semver.org/):
-- **MAJOR**: Incompatible API changes
-- **MINOR**: Backward-compatible functionality additions
-- **PATCH**: Backward-compatible bug fixes
-
-### Release Process
-1. **Development**: Feature branches and pull requests
-2. **Testing**: Automated testing and validation
-3. **Review**: Code review and approval process
-4. **Release**: Tagged releases with changelog
-
-### Changelog Format
-```markdown
-## [1.2.0] - 2024-01-15
-### Added
-- New Istio service mesh integration
-- Enhanced security configurations
-
-### Changed
-- Updated ArgoCD to version 2.9.0
-- Improved error handling
-
-### Fixed
-- DNS resolution issues
-- Load balancer configuration bugs
-
-### Deprecated
-- Legacy authentication methods
-
-### Removed
-- Deprecated addon configurations
-
-### Security
-- Updated base images for security patches
-```
 
 ## 🤝 Contributing
 
@@ -983,7 +678,12 @@ This module is licensed under the [MIT License](LICENSE).
 
 ## 🆘 Support
 
-- **Documentation**: Check the examples and this README
+For help with this module:
+
+- **Documentation**: Check the [examples](./examples/) and this README
+- **Troubleshooting**: See the [Troubleshooting Guide](./TROUBLESHOOTING.md) for common issues and solutions
+- **Migration**: Follow the [Migration Guide](./MIGRATION.md) for migrating from other GitOps solutions
+- **Upgrades**: Use the [Upgrade Guide](./UPGRADE.md) for version upgrades
 - **Issues**: Report bugs via GitHub Issues
 - **Discussions**: Join our community discussions
 
@@ -1250,8 +950,15 @@ No requirements.
 | [aws_iam_session_context.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_session_context) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
-## Inputs
+## 📝 Inputs
 
+This module accepts the following input variables. Variables are organized by category for easier navigation.
+
+### Required Inputs
+
+These inputs are required for the module to function properly:
+
+| Name | Description | Type | Default | Required |
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_cluster_certificate_authority_data"></a> [cluster\_certificate\_authority\_data](#input\_cluster\_certificate\_authority\_data) | Base64 encoded certificate data required to communicate with the cluster | `string` | n/a | yes |
@@ -1259,6 +966,10 @@ No requirements.
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Name of the EKS cluster | `string` | n/a | yes |
 | <a name="input_cluster_platform_version"></a> [cluster\_platform\_version](#input\_cluster\_platform\_version) | Platform version for the cluster | `string` | n/a | yes |
 | <a name="input_oidc_provider_arn"></a> [oidc\_provider\_arn](#input\_oidc\_provider\_arn) | The ARN of the OIDC Provider | `string` | n/a | yes |
+
+### Optional Inputs
+
+These inputs have default values and can be customized based on your requirements:
 | <a name="input_GITOPS_PASSWORD"></a> [GITOPS\_PASSWORD](#input\_GITOPS\_PASSWORD) | GitOps password or token | `string` | `null` | no |
 | <a name="input_addons"></a> [addons](#input\_addons) | Kubernetes addons | `any` | <pre>{<br/>  "enable_argo_workflows": true,<br/>  "enable_aws_load_balancer_controller": true,<br/>  "enable_aws_node_termination_handler": false,<br/>  "enable_cluster_autoscaler": false,<br/>  "enable_external_dns": true,<br/>  "enable_external_secrets": true,<br/>  "enable_grafana_loki": true,<br/>  "enable_istio": false,<br/>  "enable_karpenter": false,<br/>  "enable_metrics_server": true,<br/>  "enable_secrets_store_csi_driver": true,<br/>  "enable_secrets_store_csi_driver_provider_aws": true<br/>}</pre> | no |
 | <a name="input_argo_host_dns"></a> [argo\_host\_dns](#input\_argo\_host\_dns) | Argo host for public access using ALB | <pre>object({<br/>    domain_name            = string<br/>    zone_id                = optional(string)<br/>    aws_load_balancer_type = optional(string)<br/>    validation = optional(string)<br/>  })</pre> | <pre>{<br/>  "aws_load_balancer_type": "internal",<br/>  "domain_name": "example.com",<br/>  "validation": "private",<br/>  "zone_id": "XXXXXXXXXXXXXX"<br/>}</pre> | no |
@@ -1309,11 +1020,95 @@ No requirements.
 | <a name="input_vpc_cni_conf_mode"></a> [vpc\_cni\_conf\_mode](#input\_vpc\_cni\_conf\_mode) | VPC CNI mode, use custom\_cfg for secondary subnets and default\_cfg for delegation prefix | `string` | `"default_cfg"` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC Id | `string` | `""` | no |
 
-## Outputs
+### Input Validation and Examples
 
-| Name | Description |
-|------|-------------|
-| <a name="output_addons"></a> [addons](#output\_addons) | EKS Addons |
+#### Required Inputs Example
+```hcl
+module "gitops_bridge" {
+  source = "path/to/terraform-hardening-gitops-bridge"
+
+  # Required inputs - must be provided
+  cluster_name                         = "my-eks-cluster"
+  cluster_endpoint                     = "https://xxxxx.gr7.us-west-2.eks.amazonaws.com"
+  cluster_certificate_authority_data   = "LS0tLS1CRUdJTi..."
+  cluster_platform_version             = "eks.1"
+  oidc_provider_arn                    = "arn:aws:iam::123456789012:oidc-provider/..."
+}
+```
+
+#### Common Configuration Patterns
+```hcl
+# Basic GitOps setup
+gitops_addons_org  = "git@github.com:my-org"
+gitops_addons_repo = "my-addons-repo"
+
+# Enable essential addons
+addons = {
+  enable_aws_load_balancer_controller = true
+  enable_metrics_server               = true
+  enable_external_secrets             = true
+  enable_external_dns                 = true
+}
+
+# SSO configuration
+enable_sso    = true
+tenant_id     = "your-tenant-id"
+client_id     = "your-client-id"
+client_secret = "your-client-secret"
+```
+
+#### Input Validation Rules
+
+- **cluster_name**: Must be a valid EKS cluster name (1-100 characters, alphanumeric and hyphens)
+- **cluster_endpoint**: Must be a valid HTTPS URL
+- **oidc_provider_arn**: Must be a valid AWS IAM OIDC provider ARN
+- **vpc_id**: Must be a valid VPC ID if provided
+- **subnet_ids**: Must be valid subnet IDs within the specified VPC
+
+## 📤 Outputs
+
+The module provides the following outputs that can be used by other Terraform configurations or for reference:
+
+| Name | Description | Type | Sensitive |
+|------|-------------|------|-----------|
+| <a name="output_addons"></a> [addons](#output\_addons) | Map of enabled EKS addons and their configurations | `map(any)` | No |
+
+### Output Usage Examples
+
+```hcl
+# Access the addons output
+output "enabled_addons" {
+  description = "List of enabled addons"
+  value       = module.gitops_bridge.addons
+}
+
+# Use outputs in other resources
+resource "aws_ssm_parameter" "addon_status" {
+  name  = "/eks/${var.cluster_name}/addons"
+  type  = "String"
+  value = jsonencode(module.gitops_bridge.addons)
+}
+```
+
+### Additional Information Available
+
+While not exposed as outputs, the module creates several resources that can be referenced:
+
+- **ArgoCD Applications**: Available in the `argocd` namespace
+- **Security Groups**: Created for ingress and load balancer traffic
+- **IAM Roles**: Service account roles for various addons
+- **Route53 Records**: DNS records for ingress endpoints (if configured)
+
+```bash
+# Access ArgoCD applications
+kubectl get applications -n argocd
+
+# View created security groups
+aws ec2 describe-security-groups --filters "Name=tag:kubernetes.io/cluster/${cluster_name},Values=owned"
+
+# Check addon status
+kubectl get pods -n kube-system
+```
 
 <!-- END_TF_DOCS -->
 
